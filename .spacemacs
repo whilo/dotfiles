@@ -53,17 +53,20 @@ values."
      yaml
      ess
      docker
+     typescript
      nginx
+     csv
 
      haskell
-     agda
+     ocaml
      finance
+     go
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
-   dotspacemacs-additional-packages '()
+   dotspacemacs-additional-packages '(solidity-mode guess-language) ;'(sayid)
    ;; A list of packages and/or extensions that will not be install and loaded.
    dotspacemacs-excluded-packages '()
    ;; If non-nil spacemacs will delete any orphan packages, i.e. packages that
@@ -79,6 +82,11 @@ You should not put any user code in there besides modifying the variable
 values."
   ;; This setq-default sexp is an exhaustive list of all the supported
   ;; spacemacs settings.
+  (setq configuration-layer--elpa-archives
+        '(("melpa" . "melpa.org/packages/")
+          ("org" . "orgmode.org/elpa/")
+          ("gnu" . "elpa.gnu.org/packages/")
+          ("billpiel" . "http://billpiel.com/emacs-packages/")))
   (setq-default
    ;; If non nil ELPA repositories are contacted via HTTPS whenever it's
    ;; possible. Set it to nil if you have no way to use HTTPS in your
@@ -278,6 +286,21 @@ you should place your code here."
   (add-to-list 'org-agenda-files "~/Dokumente/org")
   (setq org-agenda-include-diary t)
 
+  ;; http://manuel-uberti.github.io/emacs/2017/02/04/guess-language/
+  ;; caused hanging
+ ;; (use-package guess-language         ; Automatically detect language for Flyspell
+ ;;   :ensure t
+  ;;  :defer t
+   ;; :init (add-hook 'text-mode-hook #'guess-language-mode)
+  ;;  :config
+  ;;  (setq guess-language-langcodes '((en . ("en_GB" "English"))
+   ;;                                  (de . ("de_DE" "German")))
+    ;;      guess-language-languages '(en de)
+     ;;     guess-language-min-paragraph-length 45)
+   ;; :diminish guess-language-mode)
+
+
+
 
   ;; Coloring
   (defun live-fontify-hex-colors (limit)
@@ -308,11 +331,11 @@ you should place your code here."
   (add-hook 'cider-mode-hook
             #'live-fontify-hex-colours-in-current-buffer)
 
-  (add-hook 'html-mode-hook
+  (add-hook 'web-mode-hook
             #'live-fontify-hex-colours-in-current-buffer)
 
-  (setq python-shell-interpreter  "ipython"
-        python-shell-interpreter-args "")
+  ;(setq python-shell-interpreter  "ipython"
+  ;      python-shell-interpreter-args "")
 
   ;; taken from https://github.com/bhauman/lein-figwheel/wiki/Using-the-Figwheel-REPL-within-NRepl
   (require 'cider)
@@ -320,14 +343,6 @@ you should place your code here."
         "(do (require 'figwheel-sidecar.repl-api)
            (figwheel-sidecar.repl-api/start-figwheel!)
            (figwheel-sidecar.repl-api/cljs-repl))")
-
-  ;; Erlang
-  ;;(inferior-erlang-change-directory "/home/christian/Development/antidote/") 
-  (setq inferior-erlang-machine "/home/christian/Development/antidote/_build/default/rel/antidote/bin/antidote")
-
-
-  (inferior-erlang "/home/christian/Development/antidote/_build/default/rel/antidote/bin/env console") 
-
   )
 
 (defun python-use-gpu ()
@@ -363,9 +378,9 @@ you should place your code here."
      (output-html "xdg-open"))))
  '(eclim-executable "/opt/tools/eclipse/eclim")
  '(magit-push-arguments nil)
- '(python-shell-prompt-block-regexp "In \\[[0-9]+\\]: ")
- '(python-shell-prompt-output-regexp "Out\\[[0-9]+\\]: ")
- '(ycmd-server-command (quote ("ycmd"))))
+ '(package-selected-packages
+   (quote
+    (go-guru go-eldoc company-go go-mode yapfify yaml-mode xterm-color ws-butler wolfram-mode window-numbering which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen utop use-package tuareg toc-org tide thrift tagedit stickyfunc-enhance stan-mode srefactor spacemacs-theme spaceline solidity-mode smeargle slim-mode shell-pop scss-mode scad-mode sass-mode rvm ruby-tools ruby-test-mode rubocop rspec-mode robe restart-emacs rbenv rake rainbow-delimiters quelpa qml-mode pyvenv pytest pyenv-mode py-isort pug-mode popwin pip-requirements persp-mode paradox ox-reveal orgit org-projectile org-present org-pomodoro org-plus-contrib org-download org-bullets open-junk-file ocp-indent nginx-mode neotree mwim multi-term move-text mmm-mode minitest merlin matlab-mode markdown-toc magit-gitflow macrostep lorem-ipsum livid-mode live-py-mode linum-relative link-hint less-css-mode ledger-mode js2-refactor js-doc intero insert-shebang info+ indent-guide ido-vertical-mode hy-mode hungry-delete htmlize hlint-refactor hl-todo hindent highlight-parentheses highlight-numbers highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-pydoc helm-projectile helm-mode-manager helm-make helm-hoogle helm-gitignore helm-flx helm-descbinds helm-css-scss helm-cscope helm-company helm-c-yasnippet helm-ag haskell-snippets guess-language google-translate golden-ratio gnuplot gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md flyspell-correct-helm flycheck-pos-tip flycheck-ledger flycheck-haskell flx-ido fish-mode fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu ess-smart-equals ess-R-object-popup ess-R-data-view eshell-z eshell-prompt-extras esh-help erlang emmet-mode elisp-slime-nav dumb-jump dockerfile-mode docker disaster diff-hl define-word cython-mode cyberpunk-theme csv-mode company-web company-tern company-statistics company-shell company-ghci company-ghc company-emacs-eclim company-cabal company-c-headers company-auctex company-anaconda column-enforce-mode coffee-mode cmm-mode cmake-mode clojure-snippets clj-refactor clean-aindent-mode clang-format cider-eval-sexp-fu chruby bundler auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile arduino-mode aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell))))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
