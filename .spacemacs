@@ -61,6 +61,12 @@ values."
      ocaml
      finance
      go
+
+     rust
+     racket
+     asciidoc
+     lua
+     coq
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
@@ -274,6 +280,8 @@ before packages are loaded. If you are unsure, you should try in setting them in
 `dotspacemacs/user-config' first."
   )
 
+
+
 (defun dotspacemacs/user-config ()
 
   "Configuration function for user code.
@@ -284,7 +292,10 @@ explicitly specified that a variable should be set before a package is loaded,
 you should place your code here."
   (require 'org)
   (add-to-list 'org-agenda-files "~/Dokumente/org")
+  (add-to-list 'org-agenda-files "~/Dokumente/org/projects")
   (setq org-agenda-include-diary t)
+
+  (add-to-list 'tramp-remote-path "/home/whilo/miniconda3/bin")
 
   ;; http://manuel-uberti.github.io/emacs/2017/02/04/guess-language/
   ;; caused hanging
@@ -299,6 +310,22 @@ you should place your code here."
      ;;     guess-language-min-paragraph-length 45)
    ;; :diminish guess-language-mode)
 
+
+  ;; http://orgmode.org/worg/org-gtd-etc.html
+  ;; Activate the org-timer module :
+
+  (add-to-list 'org-modules 'org-timer)
+
+  ;; Set a default value for the timer, for example :
+
+  (setq org-timer-default-timer 25)
+
+  ;; Modify the org-clock-in so that a timer is started with the default
+  ;; value except if a timer is already started :
+
+  (add-hook 'org-clock-in-hook (lambda ()
+                                 (if (not org-timer-current-timer) 
+                                     (org-timer-set-timer '(16)))))
 
 
 
@@ -334,23 +361,38 @@ you should place your code here."
   (add-hook 'web-mode-hook
             #'live-fontify-hex-colours-in-current-buffer)
 
-  ;(setq python-shell-interpreter  "ipython"
-  ;      python-shell-interpreter-args "")
-
   ;; taken from https://github.com/bhauman/lein-figwheel/wiki/Using-the-Figwheel-REPL-within-NRepl
   (require 'cider)
   (setq cider-cljs-lein-repl
         "(do (require 'figwheel-sidecar.repl-api)
            (figwheel-sidecar.repl-api/start-figwheel!)
            (figwheel-sidecar.repl-api/cljs-repl))")
+
+
+  (add-hook 'prog-mode-hook 'rainbow-delimiters-mode)
+  (require 'rainbow-delimiters)
+  (set-face-attribute 'rainbow-delimiters-unmatched-face nil
+                      :foreground 'unspecified
+                      :inherit 'error)
+
+
+  ;; JyNI indentation
+  (setq-default c-basic-offset 4
+                tab-width 4
+                indent-tabs-mode t) 
   )
 
 (defun python-use-gpu ()
   (setq
    python-shell-process-environment
    '("THEANO_FLAGS=mode=FAST_RUN,exception_verbosity=high,device=gpu,floatX=32")
-   python-shell-interpreter  "optirun"
-   python-shell-interpreter-args "ipython"))
+   python-shell-interpreter  "ipython3"
+   python-shell-exec-path '("/home/whilo/miniconda3/bin/")
+   python-shell-interpreter-args ""))
+
+
+(python-use-gpu)
+
 
 (defun python-use-cpu ()
   (setq
@@ -377,16 +419,19 @@ you should place your code here."
      (output-pdf "Okular")
      (output-html "xdg-open"))))
  '(eclim-executable "/opt/tools/eclipse/eclim")
+ '(lua-default-application "th")
  '(magit-push-arguments nil)
  '(package-selected-packages
    (quote
-    (go-guru go-eldoc company-go go-mode yapfify yaml-mode xterm-color ws-butler wolfram-mode window-numbering which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen utop use-package tuareg toc-org tide thrift tagedit stickyfunc-enhance stan-mode srefactor spacemacs-theme spaceline solidity-mode smeargle slim-mode shell-pop scss-mode scad-mode sass-mode rvm ruby-tools ruby-test-mode rubocop rspec-mode robe restart-emacs rbenv rake rainbow-delimiters quelpa qml-mode pyvenv pytest pyenv-mode py-isort pug-mode popwin pip-requirements persp-mode paradox ox-reveal orgit org-projectile org-present org-pomodoro org-plus-contrib org-download org-bullets open-junk-file ocp-indent nginx-mode neotree mwim multi-term move-text mmm-mode minitest merlin matlab-mode markdown-toc magit-gitflow macrostep lorem-ipsum livid-mode live-py-mode linum-relative link-hint less-css-mode ledger-mode js2-refactor js-doc intero insert-shebang info+ indent-guide ido-vertical-mode hy-mode hungry-delete htmlize hlint-refactor hl-todo hindent highlight-parentheses highlight-numbers highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-pydoc helm-projectile helm-mode-manager helm-make helm-hoogle helm-gitignore helm-flx helm-descbinds helm-css-scss helm-cscope helm-company helm-c-yasnippet helm-ag haskell-snippets guess-language google-translate golden-ratio gnuplot gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md flyspell-correct-helm flycheck-pos-tip flycheck-ledger flycheck-haskell flx-ido fish-mode fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu ess-smart-equals ess-R-object-popup ess-R-data-view eshell-z eshell-prompt-extras esh-help erlang emmet-mode elisp-slime-nav dumb-jump dockerfile-mode docker disaster diff-hl define-word cython-mode cyberpunk-theme csv-mode company-web company-tern company-statistics company-shell company-ghci company-ghc company-emacs-eclim company-cabal company-c-headers company-auctex company-anaconda column-enforce-mode coffee-mode cmm-mode cmake-mode clojure-snippets clj-refactor clean-aindent-mode clang-format cider-eval-sexp-fu chruby bundler auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile arduino-mode aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell))))
+    (company-coq company-math math-symbol-lists toml-mode racer flycheck-rust cargo rust-mode racket-mode faceup adoc-mode markup-faces lua-mode go-guru go-eldoc company-go go-mode yapfify yaml-mode xterm-color ws-butler wolfram-mode window-numbering which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen utop use-package tuareg toc-org tide thrift tagedit stickyfunc-enhance stan-mode srefactor spacemacs-theme spaceline solidity-mode smeargle slim-mode shell-pop scss-mode scad-mode sass-mode rvm ruby-tools ruby-test-mode rubocop rspec-mode robe restart-emacs rbenv rake rainbow-delimiters quelpa qml-mode pyvenv pytest pyenv-mode py-isort pug-mode popwin pip-requirements persp-mode paradox ox-reveal orgit org-projectile org-present org-pomodoro org-plus-contrib org-download org-bullets open-junk-file ocp-indent nginx-mode neotree mwim multi-term move-text mmm-mode minitest merlin matlab-mode markdown-toc magit-gitflow macrostep lorem-ipsum livid-mode live-py-mode linum-relative link-hint less-css-mode ledger-mode js2-refactor js-doc intero insert-shebang info+ indent-guide ido-vertical-mode hy-mode hungry-delete htmlize hlint-refactor hl-todo hindent highlight-parentheses highlight-numbers highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-pydoc helm-projectile helm-mode-manager helm-make helm-hoogle helm-gitignore helm-flx helm-descbinds helm-css-scss helm-cscope helm-company helm-c-yasnippet helm-ag haskell-snippets guess-language google-translate golden-ratio gnuplot gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md flyspell-correct-helm flycheck-pos-tip flycheck-ledger flycheck-haskell flx-ido fish-mode fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu ess-smart-equals ess-R-object-popup ess-R-data-view eshell-z eshell-prompt-extras esh-help erlang emmet-mode elisp-slime-nav dumb-jump dockerfile-mode docker disaster diff-hl define-word cython-mode cyberpunk-theme csv-mode company-web company-tern company-statistics company-shell company-ghci company-ghc company-emacs-eclim company-cabal company-c-headers company-auctex company-anaconda column-enforce-mode coffee-mode cmm-mode cmake-mode clojure-snippets clj-refactor clean-aindent-mode clang-format cider-eval-sexp-fu chruby bundler auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile arduino-mode aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell)))
+ '(rainbow-delimiters-max-face-count 1))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
  '(company-tooltip-common ((t (:inherit company-tooltip :weight bold :underline nil))))
- '(company-tooltip-common-selection ((t (:inherit company-tooltip-selection :weight bold :underline nil)))))
+ '(company-tooltip-common-selection ((t (:inherit company-tooltip-selection :weight bold :underline nil))))
+ '(rainbow-delimiters-depth-1-face ((t (:foreground "gray")))))
 
 
