@@ -23,6 +23,7 @@ values."
      ;; Uncomment some layer names and press <SPC f e R> (Vim style) or
      ;; <M-m f e R> (Emacs style) to install them.
      ;; ----------------------------------------------------------------
+	 gpu
      auto-completion
      better-defaults
      emacs-lisp
@@ -67,12 +68,13 @@ values."
      asciidoc
      lua
      coq
+     vimscript
      )
    ;; List of additional packages that will be installed without being
    ;; wrapped in a layer. If you need some configuration for these
    ;; packages, then consider creating a layer. You can also put the
    ;; configuration in `dotspacemacs/user-config'.
-   dotspacemacs-additional-packages '(solidity-mode guess-language) ;'(sayid)
+   dotspacemacs-additional-packages '(solidity-mode guess-language flycheck-clojure flycheck-pos-tip) ;'(sayid)
    ;; A list of packages and/or extensions that will not be install and loaded.
    dotspacemacs-excluded-packages '()
    ;; If non-nil spacemacs will delete any orphan packages, i.e. packages that
@@ -296,6 +298,7 @@ you should place your code here."
   (setq org-agenda-include-diary t)
 
   (add-to-list 'tramp-remote-path "/home/whilo/miniconda3/bin")
+  (add-to-list 'tramp-remote-path "/export/home/cweilbac/miniconda3/bin") 
 
   ;; http://manuel-uberti.github.io/emacs/2017/02/04/guess-language/
   ;; caused hanging
@@ -380,25 +383,46 @@ you should place your code here."
   (setq-default c-basic-offset 4
                 tab-width 4
                 indent-tabs-mode t) 
-  )
-
-(defun python-use-gpu ()
-  (setq
-   python-shell-process-environment
-   '("THEANO_FLAGS=mode=FAST_RUN,exception_verbosity=high,device=gpu,floatX=32")
-   python-shell-interpreter  "ipython3"
-   python-shell-exec-path '("/home/whilo/miniconda3/bin/")
-   python-shell-interpreter-args ""))
 
 
-(python-use-gpu)
+  (defun python-use-gpu ()
+	(setq
+	 python-shell-process-environment
+	 '("THEANO_FLAGS=mode=FAST_RUN,exception_verbosity=high,device=gpu,floatX=32")
+	 python-shell-interpreter  "ipython"
+	 python-shell-exec-path '("/export/home/cweilbac/miniconda3/bin/")
+	 python-shell-interpreter-args "")) 
+
+  (defun python-conda ()
+	(setq
+	 python-shell-interpreter  "ipython"
+	 python-shell-exec-path '("/export/home/cweilbac/miniconda3/bin/")
+	 python-shell-interpreter-args "")) 
+
+  ;(python-conda)
 
 
-(defun python-use-cpu ()
-  (setq
-   python-shell-process-environment '()
-   python-shell-interpreter  "ipython"
-   python-shell-interpreter-args ""))
+  ;(python-use-gpu) 
+
+
+  (defun python-use-cpu ()
+	(setq
+	 python-shell-process-environment '()
+	 python-shell-interpreter  "ipython3"
+	 python-shell-interpreter-args ""))
+
+
+  ;(setenv "IPY_TEST_SIMPLE_PROMPT" "1") 
+
+
+  ;(eval-after-load 'flycheck '(flycheck-clojure-setup))
+  ;(add-hook 'after-init-hook #'global-flycheck-mode)
+
+  ;(eval-after-load 'flycheck
+	;'(setq flycheck-display-errors-function #'flycheck-pos-tip-error-messages))
+
+
+    )
 
 
 
@@ -423,15 +447,19 @@ you should place your code here."
  '(magit-push-arguments nil)
  '(package-selected-packages
    (quote
-    (company-coq company-math math-symbol-lists toml-mode racer flycheck-rust cargo rust-mode racket-mode faceup adoc-mode markup-faces lua-mode go-guru go-eldoc company-go go-mode yapfify yaml-mode xterm-color ws-butler wolfram-mode window-numbering which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen utop use-package tuareg toc-org tide thrift tagedit stickyfunc-enhance stan-mode srefactor spacemacs-theme spaceline solidity-mode smeargle slim-mode shell-pop scss-mode scad-mode sass-mode rvm ruby-tools ruby-test-mode rubocop rspec-mode robe restart-emacs rbenv rake rainbow-delimiters quelpa qml-mode pyvenv pytest pyenv-mode py-isort pug-mode popwin pip-requirements persp-mode paradox ox-reveal orgit org-projectile org-present org-pomodoro org-plus-contrib org-download org-bullets open-junk-file ocp-indent nginx-mode neotree mwim multi-term move-text mmm-mode minitest merlin matlab-mode markdown-toc magit-gitflow macrostep lorem-ipsum livid-mode live-py-mode linum-relative link-hint less-css-mode ledger-mode js2-refactor js-doc intero insert-shebang info+ indent-guide ido-vertical-mode hy-mode hungry-delete htmlize hlint-refactor hl-todo hindent highlight-parentheses highlight-numbers highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-pydoc helm-projectile helm-mode-manager helm-make helm-hoogle helm-gitignore helm-flx helm-descbinds helm-css-scss helm-cscope helm-company helm-c-yasnippet helm-ag haskell-snippets guess-language google-translate golden-ratio gnuplot gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md flyspell-correct-helm flycheck-pos-tip flycheck-ledger flycheck-haskell flx-ido fish-mode fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu ess-smart-equals ess-R-object-popup ess-R-data-view eshell-z eshell-prompt-extras esh-help erlang emmet-mode elisp-slime-nav dumb-jump dockerfile-mode docker disaster diff-hl define-word cython-mode cyberpunk-theme csv-mode company-web company-tern company-statistics company-shell company-ghci company-ghc company-emacs-eclim company-cabal company-c-headers company-auctex company-anaconda column-enforce-mode coffee-mode cmm-mode cmake-mode clojure-snippets clj-refactor clean-aindent-mode clang-format cider-eval-sexp-fu chruby bundler auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile arduino-mode aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell)))
+    (flycheck-clojure winum unfill fuzzy vimrc-mode dactyl-mode company-coq company-math math-symbol-lists toml-mode racer flycheck-rust cargo rust-mode racket-mode faceup adoc-mode markup-faces lua-mode go-guru go-eldoc company-go go-mode yapfify yaml-mode xterm-color ws-butler wolfram-mode window-numbering which-key web-mode web-beautify volatile-highlights vi-tilde-fringe uuidgen utop use-package tuareg toc-org tide thrift tagedit stickyfunc-enhance stan-mode srefactor spacemacs-theme spaceline solidity-mode smeargle slim-mode shell-pop scss-mode scad-mode sass-mode rvm ruby-tools ruby-test-mode rubocop rspec-mode robe restart-emacs rbenv rake rainbow-delimiters quelpa qml-mode pyvenv pytest pyenv-mode py-isort pug-mode popwin pip-requirements persp-mode paradox ox-reveal orgit org-projectile org-present org-pomodoro org-plus-contrib org-download org-bullets open-junk-file ocp-indent nginx-mode neotree mwim multi-term move-text mmm-mode minitest merlin matlab-mode markdown-toc magit-gitflow macrostep lorem-ipsum livid-mode live-py-mode linum-relative link-hint less-css-mode ledger-mode js2-refactor js-doc intero insert-shebang info+ indent-guide ido-vertical-mode hy-mode hungry-delete htmlize hlint-refactor hl-todo hindent highlight-parentheses highlight-numbers highlight-indentation hide-comnt help-fns+ helm-themes helm-swoop helm-pydoc helm-projectile helm-mode-manager helm-make helm-hoogle helm-gitignore helm-flx helm-descbinds helm-css-scss helm-cscope helm-company helm-c-yasnippet helm-ag haskell-snippets guess-language google-translate golden-ratio gnuplot gitconfig-mode gitattributes-mode git-timemachine git-messenger git-link git-gutter-fringe git-gutter-fringe+ gh-md flyspell-correct-helm flycheck-pos-tip flycheck-ledger flycheck-haskell flx-ido fish-mode fill-column-indicator fancy-battery eyebrowse expand-region exec-path-from-shell evil-visualstar evil-visual-mark-mode evil-unimpaired evil-tutor evil-surround evil-search-highlight-persist evil-numbers evil-nerd-commenter evil-mc evil-matchit evil-magit evil-lisp-state evil-indent-plus evil-iedit-state evil-exchange evil-escape evil-ediff evil-args evil-anzu ess-smart-equals ess-R-object-popup ess-R-data-view eshell-z eshell-prompt-extras esh-help erlang emmet-mode elisp-slime-nav dumb-jump dockerfile-mode docker disaster diff-hl define-word cython-mode cyberpunk-theme csv-mode company-web company-statistics company-shell company-ghci company-ghc company-emacs-eclim company-cabal company-c-headers company-auctex company-anaconda column-enforce-mode coffee-mode cmm-mode cmake-mode clojure-snippets clj-refactor clean-aindent-mode clang-format cider-eval-sexp-fu chruby bundler auto-yasnippet auto-highlight-symbol auto-dictionary auto-compile arduino-mode aggressive-indent adaptive-wrap ace-window ace-link ace-jump-helm-line ac-ispell)))
  '(rainbow-delimiters-max-face-count 1))
 (custom-set-faces
  ;; custom-set-faces was added by Custom.
  ;; If you edit it by hand, you could mess it up, so be careful.
  ;; Your init file should contain only one such instance.
  ;; If there is more than one, they won't work right.
+ '(default ((((class color) (min-colors 89)) (:foreground "#d3d3d3" :background "#000000"))))
  '(company-tooltip-common ((t (:inherit company-tooltip :weight bold :underline nil))))
  '(company-tooltip-common-selection ((t (:inherit company-tooltip-selection :weight bold :underline nil))))
+ '(proof-eager-annotation-face ((t (:background "medium blue"))))
+ '(proof-error-face ((t (:background "dark red"))))
+ '(proof-warning-face ((t (:background "indianred3"))))
  '(rainbow-delimiters-depth-1-face ((t (:foreground "gray")))))
 
 
